@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Moodle True False</title>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-700 flex justify-center items-center h-screen">
+	<!-- content -->
+	<div class="w-2/3 flex gap-2">
+
+		<div class="">
+			<h1 class="text-center text-white text-6xl w-1/2 mb-5">Moodle aiken name formating </h1>
+			<h2 class="text-white text-4xl mb-5">example format:</h2>
+			<p class="text-white">
+				A) Question a
+				<br>
+				B) Question b
+				<br>
+				C) Question c
+				<br>
+				D) Question d
+				<br>
+				ANSWER: A
+
+			</p>
+		</div>
+
+		<div class="flex items-center justify-center w-1/2 bg-gray-600" id="dropzone">
+			<label for="dropzone-file"
+				class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+				<div class="flex flex-col items-center justify-center pt-5 pb-6">
+					<svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+						<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+					</svg>
+					<p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to
+							upload</span> or drag and drop</p>
+					<p class="text-xs text-gray-500 dark:text-gray-400">TXT FILE</p>
+				</div>
+				<input id="dropzone-file" type="file" class="hidden" />
+			</label>
+
+		</div>
+	</div>
+
+	<script>
+		function txtToXml(txt) {
+			const x = txt.split('\n');
+
+			let header = `<?xml version="1.0" encoding="UTF-8"?>\n<quiz>`
+			let footer = `</quiz>`;
+			let template = (data) => {
+				let {A,B,C,D,answer,name,questiontext} = data
+				let res = `
+	<!-- question: ${name}  -->
+	<question type="multichoice">
+    <name>
+	<text>${name}</text>
+    </name>
+    <questiontext format="html">
+	<text><![CDATA[<p>${questiontext}<br></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+	<text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <single>true</single>
+    <shuffleanswers>false</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <correctfeedback format="html">
+	<text>Your answer is correct.</text>
+    </correctfeedback>
+    <partiallycorrectfeedback format="html">
+	<text>Your answer is partially correct.</text>
+    </partiallycorrectfeedback>
+    <incorrectfeedback format="html">
+	<text>Your answer is incorrect.</text>
+    </incorrectfeedback>
+    <shownumcorrect/>
+    <answer fraction="${answer === "A" ? "100" : "0"}" format="html">
+	<text><![CDATA[<p>${A}<br></p>]]></text>
+	<feedback format="html">
+	<text></text>
+	</feedback>
+    </answer>
+    <answer fraction="${answer === "B" ? "100" : "0"}" format="html">
+	<text><![CDATA[<p>${B}<br></p>]]></text>
+	<feedback format="html">
+	<text></text>
+	</feedback>
+    </answer>
+    <answer fraction="${answer === "C" ? "100" : "0"}" format="html">
+	<text><![CDATA[<p>${C}<br></p>]]></text>
+	<feedback format="html">
+	<text></text>
+	</feedback>
+    </answer>
+    <answer fraction="${answer === "D" ? "100" : "0"}" format="html">
+	<text><![CDATA[<p>${D}<br></p>]]></text>
+	<feedback format="html">
+	<text></text>
+	</feedback>
+    </answer>
+	</question>
+	`;
+				return res
+			}
+
+			let list = []
+			let quizlist = []
+			let temp = []
+			for (var i = 0; i < x.length; i++) {
+				let prefix;
+				prefix = x[i].split(" ")[0]
+				if(prefix !== "A)" && prefix !== "B)" && prefix !== "C)" && prefix !== "D)" && prefix !== "ANSWER:"){
+					if(prefix && prefix !== "\r"){
+						temp=[...temp,{name:prefix,questiontext:x[i].split(" ").slice(1).join(" ").replace("\r", "")}]
+					}
+				}
+				if(prefix === "ANSWER:"){
+					let point = (i+1)/6-1
+					temp[(i+1)/6-1].answer = x[i].split(" ")[1].replace("\r", "")
+					
+				}
+				if(prefix === "A)"){
+					let point = (i+5)/6-1
+					temp[(i+5)/6-1].A = x[i].split(" ").slice(1).join(" ").replace("\r", "")
+				}
+				if(prefix === "B)"){
+					let point = (i+4)/6-1
+					temp[(i+4)/6-1].B = x[i].split(" ").slice(1).join(" ").replace("\r", "")
+				}
+				if(prefix === "C)"){
+					let point = (i+3)/6-1
+					temp[(i+3)/6-1].C = x[i].split(" ").slice(1).join(" ").replace("\r", "")
+				}
+				if(prefix === "D)"){
+					let point = (i+2)/6-1
+					temp[(i+2)/6-1].D = x[i].split(" ").slice(1).join(" ").replace("\r", "")
+				}
+			}
+			console.log(temp)
+
+			for(var i=0; i < temp.length; i++){
+				let quiz = template(temp[i])
+				quizlist.push(quiz)
+			}
+
+			let xml = header + "\n" + quizlist.join("\n") + "\n" + footer
+			return xml;
+		}
+
+		function handleFileSelect(event) {
+			const file = event.target.files[0];
+			const reader = new FileReader();
+
+			reader.onload = function (event) {
+				const tsvContent = event.target.result;
+				const xmlMoodleContent = txtToXml(tsvContent);
+				downloadXml(xmlMoodleContent);
+			};
+
+			reader.readAsText(file);
+		}
+		function handleFileSelectDrag(event) {
+			event.preventDefault();
+			const files = event.dataTransfer.files;
+			if (files.length > 0) {
+				const file = files[0];
+				const reader = new FileReader();
+
+				reader.onload = function (event) {
+					const tsvContent = event.target.result;
+					const xmlMoodleContent = txtToXml(tsvContent);
+					downloadXml(xmlMoodleContent);
+				};
+
+				reader.readAsText(file);
+			}
+		}
+
+		// Function to download XML file
+		function downloadXml(xmlContent) {
+			const blob = new Blob([xmlContent], { type: 'text/xml' });
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			const namingfile = new Date().getTime();
+			a.download = `${namingfile}.xml`;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a); // Cleanup
+			location.reload();
+		}
+
+
+		// Attach event listener to file input
+		document.getElementById('dropzone-file').addEventListener('change', handleFileSelect);
+
+		// dropzone handler
+		// Add event listeners for drag and drop
+		const dropzone = document.getElementById('dropzone');
+
+		dropzone.addEventListener('dragenter', function (event) {
+			event.preventDefault();
+			dropzone.classList.add('bg-gray-200');
+		});
+
+		dropzone.addEventListener('dragover', function (event) {
+			event.preventDefault();
+		});
+
+		dropzone.addEventListener('dragleave', function () {
+			dropzone.classList.remove('bg-gray-200');
+		});
+
+		dropzone.addEventListener('drop', function (event) {
+			event.preventDefault();
+			dropzone.classList.remove('bg-gray-200');
+			handleFileSelectDrag(event);
+		});
+
+
+	</script>
+</body>
+
+</html>
